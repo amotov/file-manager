@@ -1,1 +1,1 @@
-# file-manager
+# File manager based on Spring examples
