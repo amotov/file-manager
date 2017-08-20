@@ -11,7 +11,7 @@ public class StorageProperties {
     /**
      * Folder location for storing files
      */
-    private String location = "/home/amotov/Work/temp/";
+    private String location = "";
 
     public String getLocation() {
         return location;

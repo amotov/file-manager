@@ -42,7 +42,7 @@
                 <version>2.2-beta-1</version>
                 <configuration>
                     <descriptor>src/main/resources/distribution/file-manager-distribution.xml</descriptor>
-                    <finalName>file-manager-distribution</finalName>
+                    <finalName>file-manager</finalName>
                 </configuration>
                 <executions>
                     <execution>
