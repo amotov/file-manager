@@ -22,7 +22,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>target/lib</directory>
+            <directory>target</directory>
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>*.jar</include>
