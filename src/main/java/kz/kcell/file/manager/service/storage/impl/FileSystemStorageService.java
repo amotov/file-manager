@@ -1,13 +1,10 @@
 package kz.kcell.file.manager.service.storage.impl;
 
-import kz.kcell.file.manager.service.storage.StorageProperties;
 import kz.kcell.file.manager.service.storage.StorageService;
 import kz.kcell.file.manager.service.storage.exception.StorageException;
 import kz.kcell.file.manager.service.storage.exception.StorageFileNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,21 +12,18 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 
 /**
  * @author amotov
  */
-@Service
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
 
-    @Autowired
-    public FileSystemStorageService(StorageProperties properties) {
-        this.rootLocation = Paths.get(properties.getLocation());
+    public FileSystemStorageService(Path rootLocation) {
+        this.rootLocation = rootLocation;
     }
 
     @Override

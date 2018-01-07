@@ -1,7 +1,9 @@
 package kz.kcell.file.manager.controller;
 
+import kz.kcell.file.manager.data.FileData;
 import kz.kcell.file.manager.service.storage.StorageService;
 import kz.kcell.file.manager.service.storage.exception.StorageFileNotFoundException;
+import kz.kcell.file.manager.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -22,43 +24,70 @@ import java.util.stream.Collectors;
 @Controller
 public class FileUploadController {
 
-    private final StorageService storageService;
+    private final StorageService readonlyStorageService;
+    private final StorageService writableStorageService;
 
     @Autowired
-    public FileUploadController(StorageService storageService) {
-        this.storageService = storageService;
+    public FileUploadController(
+            StorageService readonlyStorageService,
+            StorageService writableStorageService) {
+        this.readonlyStorageService = readonlyStorageService;
+        this.writableStorageService = writableStorageService;
     }
 
     @GetMapping("/")
     public String listUploadedFiles(Model model) throws IOException {
 
-        model.addAttribute("files", storageService
+        model.addAttribute("readonlyFiles", readonlyStorageService
                 .loadAll()
                 .map(path ->
-                        MvcUriComponentsBuilder
-                                .fromMethodName(FileUploadController.class, "serveFile", path.getFileName().toString())
-                                .build().toString())
+                        new FileData(
+                                MvcUriComponentsBuilder
+                                        .fromMethodName(FileUploadController.class, "serveReadonlyFile", path.getFileName().toString())
+                                        .build().toString(),
+                        path.getFileName().toString(),
+                        FileUtils.readableFileSize(path.toFile().length())))
                 .collect(Collectors.toList()));
-
+        model.addAttribute("uploadedFiles", writableStorageService
+                .loadAll()
+                .map(path ->
+                        new FileData(
+                                MvcUriComponentsBuilder
+                                        .fromMethodName(FileUploadController.class, "serveUploadedFile", path.getFileName().toString())
+                                        .build().toString(),
+                                path.getFileName().toString(),
+                                FileUtils.readableFileSize(path.toFile().length())))
+                .collect(Collectors.toList()));
         return "upload-form";
     }
 
-    @GetMapping("/files/{filename:.+}")
+    @GetMapping("/files/readonly/{filename:.+}")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+    public ResponseEntity<Resource> serveReadonlyFile(@PathVariable String filename) {
 
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = readonlyStorageService.loadAsResource(filename);
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+file.getFilename()+"\"")
                 .body(file);
     }
 
-    @PostMapping("/")
+    @GetMapping("/files/uploaded/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveUploadedFile(@PathVariable String filename) {
+
+        Resource file = writableStorageService.loadAsResource(filename);
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+file.getFilename()+"\"")
+                .body(file);
+    }
+
+    @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes) {
 
-        storageService.store(file);
+        writableStorageService.store(file);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 
