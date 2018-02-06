@@ -1,13 +1,21 @@
-ENV=$1
-DIRECTORY=`dirname $0`
-if [ "$ENV" == "" ]; then
-    ENV="dev";
+if [ "$FM_HOME" == "" ]; then
+    FM_HOME=`dirname $0`;
+    FM_HOME="$FM_HOME/../";
 fi
 
-java -Xms256m \
-     -Xmx1024m \
+if [ "$FM_HEAP_SIZE" == "" ]; then
+    FM_HEAP_SIZE="1024m";
+fi
+
+echo ""
+echo "Configuration:"
+echo "- FM_HOME: $FM_HOME";
+echo "- FM_HEAP_SIZE: $FM_HEAP_SIZE";
+
+java -Xms$FM_HEAP_SIZE \
+     -Xmx$FM_HEAP_SIZE \
      -server \
-     -Xloggc:$DIRECTORY/../logs/gc.log -verbose:gc \
+     -Xloggc:$FM_HOME/logs/gc.log -verbose:gc \
      -XX:+PrintGCDetails \
      -XX:+HeapDumpOnOutOfMemoryError \
      -XX:HeapDumpPath=$DIRECTORY/../logs \
@@ -15,7 +23,7 @@ java -Xms256m \
      -Dcom.sun.management.jmxremote.port=9888 \
      -Dcom.sun.management.jmxremote.ssl=FALSE \
      -Dcom.sun.management.jmxremote.authenticate=FALSE \
-     -Dlogging.config=$DIRECTORY/../config/logback-spring.xml \
-     -Dlogging.file=$DIRECTORY/../logs/server.log \
-     -Dspring.config.location=$DIRECTORY/../config/application.properties \
-     -jar $DIRECTORY/../lib/file-manager-0.1.jar
+     -Dlogging.config=$FM_HOME/config/logback-spring.xml \
+     -Dlogging.file=$FM_HOME/logs/server.log \
+     -Dspring.config.location=$FM_HOME/config/application.properties \
+     -jar $FM_HOME/lib/file-manager-0.1.jar
