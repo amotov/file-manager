@@ -1,10 +1,11 @@
 ENV=$1
+DIRECTORY=`dirname $0`
 if [ "$ENV" == "" ]; then
     ENV="dev";
 fi
 
 java -Xms256m \
-     -Xmx512m \
+     -Xmx1024m \
      -server \
      -Xloggc:../logs/gc.log -verbose:gc \
      -XX:+PrintGCDetails \
@@ -16,4 +17,4 @@ java -Xms256m \
      -Dcom.sun.management.jmxremote.authenticate=FALSE \
      -Dlogging.config=../config/logback-spring.xml \
      -Dspring.config.location=../config/application.properties \
-     -jar ../lib/file-manager-0.1.jar
+     -jar $DIRECTORY/../lib/file-manager-0.1.jar
